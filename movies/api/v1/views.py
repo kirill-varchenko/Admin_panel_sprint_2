@@ -6,9 +6,10 @@ from django.views.generic.detail import BaseDetailView
 
 from movies.models import Filmwork, PersonRole
 
+
 class MoviesApiMixin:
     model = Filmwork
-    http_method_names = ['get']
+    http_method_names = ["get"]
 
     def get_queryset(self):
         filmworks = (
@@ -39,6 +40,7 @@ class MoviesApiMixin:
     def render_to_response(self, context, **response_kwargs):
         return JsonResponse(context)
 
+
 class MoviesListApi(MoviesApiMixin, BaseListView):
     paginate_by = 50
 
@@ -57,7 +59,6 @@ class MoviesListApi(MoviesApiMixin, BaseListView):
         return context
 
 
-
 class MoviesDetailApi(MoviesApiMixin, BaseDetailView):
     def get_context_data(self, *, object_list=None, **kwargs):
-        return kwargs['object']
+        return kwargs["object"]
