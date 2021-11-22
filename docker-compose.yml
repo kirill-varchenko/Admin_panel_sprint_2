@@ -16,12 +16,9 @@ services:
     restart: always
   backend:
     build: .
-    command: uwsgi --ini configs/uwsgi/uwsgi.ini
     volumes:
       - static_volume:/static
       - socket_volume:/socket
-    ports:
-      - "8000:8000"
     depends_on:
       - db
     restart: always

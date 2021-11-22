@@ -12,29 +12,29 @@ class MoviesApiMixin:
     http_method_names = ["get"]
 
     def get_queryset(self):
+        role_enums = [
+            ("actors", PersonRole.ACTOR),
+            ("directors", PersonRole.DIRECTOR),
+            ("writers", PersonRole.WRITER),
+        ]
+        annotate_args = {"genres": ArrayAgg("genres__name", distinct=True)}
+        annotate_args.update(
+            {
+                role: ArrayAgg(
+                    "persons__full_name",
+                    filter=Q(personfilmwork__role=role_enum),
+                    distinct=True,
+                )
+                for role, role_enum in role_enums
+            }
+        )
+
         filmworks = (
             Filmwork.objects.select_related("genres", "persons")
             .all()
             .values()
-            .annotate(
-                genres=ArrayAgg("genres__name", distinct=True),
-                actors=ArrayAgg(
-                    "persons__full_name",
-                    filter=Q(personfilmwork__role=PersonRole.ACTOR),
-                    distinct=True,
-                ),
-                directors=ArrayAgg(
-                    "persons__full_name",
-                    filter=Q(personfilmwork__role=PersonRole.DIRECTOR),
-                    distinct=True,
-                ),
-                writers=ArrayAgg(
-                    "persons__full_name",
-                    filter=Q(personfilmwork__role=PersonRole.WRITER),
-                    distinct=True,
-                ),
-            )
-            .order_by('id')
+            .annotate(**annotate_args)
+            .order_by("id")
         )
         return filmworks
 
